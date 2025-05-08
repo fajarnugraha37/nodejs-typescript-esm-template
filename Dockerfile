@@ -1,5 +1,7 @@
+ARG NODE_VERSION="22.15.0"
+
 # --- Stage 1: Build ---
-FROM node:22.15.0-slim AS build
+FROM node:${NODE_VERSION}-slim AS build
 
 # Install pnpm globally
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -21,7 +23,7 @@ COPY src ./src
 RUN pnpm run build
 
 # --- Stage 2: Production ---
-FROM node:22.15.0-slim AS production
+FROM node:${NODE_VERSION}-slim AS production
 
 # Set working directory
 WORKDIR /app
@@ -34,9 +36,10 @@ COPY --from=build /app/dist ./dist
 # Set environment variables (optional defaults)
 ENV NODE_ENV=production
 ENV TZ=UTC
+ENV PORT=8080
 
 # Expose the port your app uses
-EXPOSE 3000
+EXPOSE $PORT
 
 # Start the app
 CMD ["node", "dist/index.js"]
